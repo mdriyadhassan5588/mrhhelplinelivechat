@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>M.R.H Help Center — Live Chat</title>
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --pink:#ff4fa3;
+      --bg:#fff7fb;
+      --card:#fff;
+      --muted:#666;
+      --radius:12px;
+      --shadow: 0 6px 22px rgba(0,0,0,0.08);
+    }
+    *{box-sizing:border-box;font-family: 'Noto Sans Bengali', Roboto, system-ui, sans-serif}
+    body{ margin:0; background:linear-gradient(180deg,#fff,#fff7fb); padding:18px; color:#222; }
+    .wrap{ max-width:1100px; margin:0 auto; background:var(--card); border-radius:16px; padding:18px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.04); }
+
+    /* header */
+    .head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .logo{ width:56px;height:56px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),#ff81c6); color:#fff;font-weight:700; font-size:18px; }
+    h1{ margin:0; font-size:20px; }
+    p.lead{ margin:6px 0 0 0; color:var(--muted); font-size:13px; }
+
+    /* layout */
+    .main{ display:grid; grid-template-columns: 320px 1fr; gap:16px; margin-top:14px; }
+    @media (max-width:900px){ .main{ grid-template-columns: 1fr; } }
+
+    /* left panel */
+    .left-pan{ display:flex; flex-direction:column; gap:12px; }
+    .contact-card{ padding:12px; border-radius:12px; background:#fff; border:1px solid rgba(0,0,0,0.04); box-shadow: 0 6px 14px rgba(0,0,0,0.03); }
+    .departments{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+    .dept-btn{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; cursor:pointer; border:1px solid rgba(0,0,0,0.04); background:linear-gradient(180deg,#fff,#fff); font-weight:700; }
+    .dept-btn .fa{ color:var(--pink); }
+    .dept-btn.active{ background:linear-gradient(90deg,var(--pink),#ff81c6); color:#fff; box-shadow: 0 8px 22px rgba(255,79,163,0.12); }
+    .small-note{ font-size:13px; color:var(--muted); margin-top:6px; }
+
+    /* right panel */
+    .panel{ background:linear-gradient(180deg,#fff,#fff); padding:12px; border-radius:12px; min-height:420px; border:1px solid rgba(0,0,0,0.04); }
+    .verify-box{ max-width:560px; margin:6px 0; display:flex; flex-direction:column; gap:10px; }
+    label{ font-size:13px; color:var(--muted); }
+    input[type="text"], input[type="number"], input[type="password"]{ padding:10px 12px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); font-size:15px; width:100%; }
+    .ok-btn{ padding:10px 14px; border-radius:10px; background:linear-gradient(90deg,var(--pink),#ff81c6); color:#fff; border:none; cursor:pointer; font-weight:700; }
+    .info-inline{ font-size:13px; color:var(--muted); }
+
+    /* chat area */
+    .chat-wrap{ display:grid; grid-template-rows: auto 1fr auto; height:520px; gap:8px; }
+    .chat-window{ padding:12px; background:#f9f7fb; border-radius:10px; overflow:auto; min-height:220px; }
+    .msg{ max-width:78%; margin-bottom:10px; padding:10px 12px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); }
+    .msg .meta{ font-size:12px; color:#666; margin-bottom:6px; }
+    .msg.user{ background:linear-gradient(90deg,#fff,#fff); align-self:flex-start; border:1px solid rgba(0,0,0,0.04); }
+    .msg.admin{ background:linear-gradient(90deg,var(--pink),#ff81c6); color:#fff; margin-left:auto; text-align:right; }
+    .chat-input{ display:flex; gap:8px; align-items:center; }
+    .chat-input input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,0.06); font-size:15px; }
+    .send-btn{ padding:10px 14px; border-radius:10px; background:var(--pink); color:#fff; border:none; cursor:pointer; font-weight:700; }
+
+    /* admin list */
+    .list{ display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+    .list-item{ padding:10px; border-radius:10px; background:#fff; display:flex; justify-content:space-between; align-items:center; gap:8px; border:1px solid rgba(0,0,0,0.04); cursor:pointer; }
+    .list-item .meta{ font-size:13px; color:var(--muted); }
+    .no-data{ color:var(--muted); font-size:14px; padding:12px; }
+    .list-item.unread{ border:1px solid red; color:red; font-weight:700; }
+
+    .hint{ font-size:13px; color:var(--muted); margin-top:6px; }
+    .top-actions{ display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+    .ghost{ background:transparent; border:1px solid rgba(0,0,0,0.06); padding:8px 10px; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main" aria-label="M.R.H Help Center Live Chat">
+    <div class="head">
+      <div class="logo">M.R.H</div>
+      <div>
+        <h1>M.R.H Help Center</h1>
+        <p class="lead">লাইভ চ্যাট — ডিপার্টমেন্ট সিলেক্ট করে যাচাই করো এবং চ্যাট শুরু করো।</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- LEFT -->
+      <div class="left-pan">
+        <div class="contact-card">
+          <strong>Contact</strong>
+          <div class="hint">ইমেইল: mdriadhassan5050@gmail.com<br>WhatsApp: 01XXXXXXXXXX<br>Facebook:https://www.facebook.com/share/16nhirGtgV/</div>
+        </div>
+
+        <div class="contact-card">
+          <strong>Departments</strong>
+          <div class="departments" role="tablist">
+            <div class="dept-btn" data-dept="customer" id="dept-customer">
+              <i class="fa-solid fa-headset"></i> কাস্টমার কেয়ার
+            </div>
+            <div class="dept-btn" data-dept="solution" id="dept-solution">
+              <i class="fa-solid fa-lightbulb"></i> সমাধান
+            </div>
+          </div>
+          <div class="small-note">কাস্টমার কেয়ারে ঢুকতে নাম ও রেজিস্ট্রেশন প্রয়োজন। সমাধান বিভাগে কোড লাগবে।</div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="panel" id="rightPanel">
+        <div id="welcomeView">
+          <h3 style="margin-top:0">লাইভ চ্যাট সিস্টেম</h3>
+          <p class="info-inline">ডিপার্টমেন্ট সিলেক্ট করলেই প্রয়োজনীয় যাচাই ফর্ম বা কোড আসবে।</p>
+        </div>
+
+        <!-- Verification -->
+        <div id="verifyView" style="display:none;">
+          <h3>কাস্টমার কেয়ার যাচাই</h3>
+          <div class="verify-box">
+            <div><label>নাম</label><input type="text" id="custName"/></div>
+            <div><label>রেজিস্ট্রেশন নং</label><input type="text" id="custReg"/></div>
+            <div style="display:flex; gap:8px;">
+              <button class="ok-btn" id="verifyBtn">OK</button>
+              <button class="ghost" id="backToWelcome">Cancel</button>
+            </div>
+            <div id="verifyMsg" class="hint"></div>
+          </div>
+        </div>
+
+        <!-- Solution -->
+        <div id="solutionView" style="display:none;">
+          <h3>সমাধান বিভাগ — প্রবেশ কোড লাগবে</h3>
+          <div class="verify-box">
+            <div><label>প্রবেশ কোড</label><input type="password" id="solutionCode"/></div>
+            <div style="display:flex; gap:8px;">
+              <button class="ok-btn" id="solutionEnterBtn">প্রবেশ</button>
+              <button class="ghost" id="backToWelcome2">Cancel</button>
+            </div>
+            <div id="solutionMsg" class="hint"></div>
+          </div>
+        </div>
+
+        <!-- Customer Chat -->
+        <div id="customerChatView" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong id="chatTitle">চ্যাট</strong><br>
+              <span class="info-inline" id="chatSub"></span>
+            </div>
+            <div class="top-actions"><button class="ghost" id="leaveChatBtn">Leave</button></div>
+          </div>
+          <div class="chat-wrap" style="margin-top:10px;">
+            <div class="chat-window" id="chatWindowUser"></div>
+            <div class="chat-input"><input type="text" id="userMessageInput"/><button class="send-btn" id="userSendBtn">পাঠাও</button></div>
+          </div>
+        </div>
+
+        <!-- Admin -->
+        <div id="adminView" style="display:none;">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <strong>সমাধান — Admin</strong>
+            <div style="margin-left:auto;"><button class="ghost" id="adminLogoutBtn">Logout</button></div>
+          </div>
+          <div style="display:grid; grid-template-columns: 320px 1fr; gap:12px; margin-top:12px;">
+            <div>
+              <div style="font-weight:700; margin-bottom:8px;">চ্যাট লিস্ট</div>
+              <div class="list" id="chatList"></div>
+            </div>
+            <div>
+              <div style="font-weight:700; margin-bottom:8px;" id="adminChatTitle">চ্যাট দেখাও</div>
+              <div class="chat-window" id="chatWindowAdmin"></div>
+              <div class="chat-input" style="margin-top:8px;">
+                <input type="text" id="adminMessageInput"/><button class="send-btn" id="adminSendBtn">রিপ্লাই</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+// 🔹 লোকালস্টোরেজ সংরক্ষণ ও লোড
+const STORAGE_KEY="mrh_chats_v1";
+
+function loadChats(){
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch(e){
+    return [];
+  }
+}
+
+function saveChats(newChats){
+  const oldChats = loadChats();
+  const merged = [...oldChats, ...newChats]; // পুরনো + নতুন
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+}
+
+// 🔹 ইউটিলিটি
+function nowTS(){ return new Date().toISOString(); }
+function uid(){ return 'id-'+Math.random().toString(36).slice(2,10); }
+
+const ALLOWED_CUSTOMERS=[
+  {name:"Md Riyad",reg:"1864052852"},
+  {name:"Asdf",reg:"0000000000"}
+];
+
+const SOLUTION_ACCESS_CODE="742815";
+let currentCustomer=null;
+let adminSelectedReg=null;
+
+// 🔹 ভিউ শো করা
+function showView(v){
+  ["welcomeView","verifyView","solutionView","customerChatView","adminView"].forEach(id=>document.getElementById(id).style.display="none");
+  if(v==="welcome")welcomeView.style.display="block";
+  if(v==="verify")verifyView.style.display="block";
+  if(v==="solution")solutionView.style.display="block";
+  if(v==="customerChat")customerChatView.style.display="block";
+  if(v==="admin")adminView.style.display="block";
+}
+
+// 🔹 কাস্টমার যাচাই
+function handleVerify(){
+  const name=custName.value.trim();
+  const reg=custReg.value.trim();
+  const match=ALLOWED_CUSTOMERS.find(u=>u.reg===reg && u.name.toLowerCase()===name.toLowerCase());
+  if(!match){
+    verifyMsg.textContent="ম্যাচ হয়নি";
+    return;
+  }
+  currentCustomer={name:match.name,reg:match.reg};
+  openCustomerChat();
+}
+
+// 🔹 কাস্টমার চ্যাট ওপেন
+function openCustomerChat(){
+  showView("customerChat");
+  chatSub.textContent=`রেজি: ${currentCustomer.reg} | নাম: ${currentCustomer.name}`;
+  renderCustomerChat();
+}
+
+// 🔹 কাস্টমার চ্যাট রেন্ডার
+function renderCustomerChat(){
+  const all=loadChats().filter(m=>m.reg===currentCustomer.reg);
+  chatWindowUser.innerHTML=all.map(m=>`<div class="msg ${m.sender}"><div class="meta">${m.name}</div><div>${m.text}</div></div>`).join("");
+  chatWindowUser.scrollTop = chatWindowUser.scrollHeight;
+}
+
+// 🔹 ইউজার মেসেজ পাঠানো
+function handleUserSend(){
+  const text=userMessageInput.value.trim();
+  if(!text) return;
+  const msg = {id:uid(),reg:currentCustomer.reg,name:currentCustomer.name,sender:"user",text,text,time:nowTS()};
+  saveChats([msg]);
+  userMessageInput.value="";
+  renderCustomerChat();
+  refreshAdminList();
+}
+
+// 🔹 সমাধান কোড যাচাই
+function handleSolutionEnter(){
+  if(solutionCode.value.trim()===SOLUTION_ACCESS_CODE) showAdminDashboard();
+  else solutionMsg.textContent="ভুল কোড";
+}
+
+// 🔹 অ্যাডমিন ড্যাশবোর্ড
+function showAdminDashboard(){
+  showView("admin");
+  refreshAdminList();
+}
+
+// 🔹 অ্যাডমিন চ্যাট লিস্ট
+function refreshAdminList(){
+  const chats=loadChats();
+  const map={};
+  for(const m of chats){
+    if(!map[m.reg]) map[m.reg]={reg:m.reg,name:m.name,last:m.time,count:0,hasUnread:false};
+    map[m.reg].count++;
+    if(new Date(m.time)>new Date(map[m.reg].last)) map[m.reg].last=m.time;
+    if(m.sender==="user") map[m.reg].hasUnread=true;
+    if(m.sender==="admin") map[m.reg].hasUnread=false;
+  }
+  chatList.innerHTML=Object.values(map).map(it=>`<div class="list-item ${it.hasUnread?"unread":""}" onclick="openAdminChat('${it.reg}')"><div><b>${it.name}</b><div class="meta">${it.reg}</div></div><div>${it.count}</div></div>`).join("") || "<div class='no-data'>খালি</div>";
+}
+
+// 🔹 অ্যাডমিন চ্যাট ওপেন
+function openAdminChat(r){
+  adminSelectedReg=r;
+  renderAdminChat();
+}
+
+// 🔹 অ্যাডমিন চ্যাট রেন্ডার
+function renderAdminChat(){
+  const all=loadChats().filter(m=>m.reg===adminSelectedReg);
+  chatWindowAdmin.innerHTML=all.map(m=>`<div class="msg ${m.sender}"><div>${m.name}</div><div>${m.text}</div></div>`).join("");
+  chatWindowAdmin.scrollTop = chatWindowAdmin.scrollHeight;
+}
+
+// 🔹 অ্যাডমিন মেসেজ পাঠানো
+function handleAdminSend(){
+  if(!adminSelectedReg) return;
+  const text=adminMessageInput.value.trim();
+  if(!text) return;
+  const msg={id:uid(),reg:adminSelectedReg,name:"Admin",sender:"admin",text,time:nowTS()};
+  saveChats([msg]);
+  adminMessageInput.value="";
+  renderAdminChat();
+  refreshAdminList();
+}
+
+// 🔹 বাটন ইভেন্ট
+showView("welcome");
+document.getElementById("dept-customer").addEventListener("click",()=>showView("verify"));
+document.getElementById("dept-solution").addEventListener("click",()=>showView("solution"));
+verifyBtn.addEventListener("click",handleVerify);
+userSendBtn.addEventListener("click",handleUserSend);
+solutionEnterBtn.addEventListener("click",handleSolutionEnter);
+adminSendBtn.addEventListener("click",handleAdminSend);
+</script>
+</body>
+</html>
